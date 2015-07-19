@@ -59,8 +59,8 @@ angle2d(A, B, R):- scalarProduct(A, B, Num),
     R is acos(Num/(X*Y)).
 
 % il predicato sort ordina la lista di punti in base alle ordinate
-listSort(A,X):-
-    sort(2, @<, A, X).
+listSort(A, Key, X):-
+    sort(Key, @=<, A, X).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   OPERAZIONI SULLE LISTE  %
@@ -70,26 +70,24 @@ listAdd([], Fs, [Fs|[]]).
 listAdd([F|Fs], S, [F|Zs]):-
     listAdd(Fs, S, Zs).
 
-% Aggiunge in testa alla lista il punto in input
-listAddTesta(X, Y, [X|Y]).
-
-% Elimina l'ultimo elemento inserito dalla testa della lista
-%listDelete([X|Xs], Xs).
-
 % Elimina l'ultimo elemento inserito dalla coda della lista
-listDelete([X], []):-!.
-listDelete([X|Xs], [X|T]):- listDelete(Xs, T).
+listDeleteLast([X], []):-!.
+listDeleteLast([X|Xs], [X|T]):- listDelete(Xs, T).
+
+% Elimina l'elemento X dalla lista
+% Ricostruisce una lista che non contiene X
+listDelete(X, [X|T], T).
+listDelete(X, [H|T], [H|S]):- listDelete(X, T, S).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   PROCEDURA PRINCIPALE    %
+%   PREDICATI D'APPOGGIO    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ch(Points, Result).
 % casi base da rivedere quando ho lista vuota uno o tre punti.
 
 % predicati d'appoggio
-addPointToList([Y|Ys], [Y]).
-rmPointToList([S|Sx], Sx).
+getFirstPointOfList([L|Ls], L).
 
 list_angle2d([], LPt, []):-!.
 list_angle2d([S|Sx],Pt, [X|Xs]):-
@@ -97,30 +95,38 @@ list_angle2d([S|Sx],Pt, [X|Xs]):-
     list_angle2d(Sx, Pt, Xs).
 simpleSort(X, Z):-
     sort(X,Z).
-setPt([ListPt|ListPts], ListPt).
-findPoint([X,Y|Xs],[X|Zs]):- (y(X))==(y(Y)),
-    (x(X))<(x(Y)).
-    
-      
 
 
+% trova i punti y minimi dalla lista di tutti i punti ordinati
+fpy([X], [X]):-!.
+fpy([X, K|Ks], [X|Zs]):-
+    y(X,Y1),
+    y(K,Y2),
+    Y1==Y2,
+    fpy([K|Ks],Zs), !.
+fpy([X, K|Ks], [X]):-
+    y(X,Y1),
+    y(K,Y2),
+    Y1<Y2.
+
+% trova il punto x minimo dalla lista di punti y minimi
+fpx(X, Z):-
+    listSort(X, 1, K),
+    getFirstPointOfList(K, Z).
 
 
-% 1- ordino la lista rispetto y, e parto con punto con coordinata xy minima
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PROCEDURA PRINCIPALE    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ch(Points, Result):-
-    listSort(Points, Sorted),
-    findPoin(Sorted,Result).
-    
-
-
-
-
-
-    %addPointToList(Sorted, ListPt),
-    %setPt(ListPt, Pt), % in caso di due punti min con stessa y?
-    %rmPointToList(Sorted, S),
+    % 1- ordino la lista rispetto y, e parto con punto con coordinata xy minima
+    listSort(Points, 2, Sorted),
+    fpy(Sorted,Pt),
+    fpx(Pt, PtMin).
+    addPointToList(Hulls_List, PtMin),
+    rmPointToList(Sorted, S),
 % 2- p1 . . . pn ordinati in senso orario rispetto a P0 [angle2d]
-    %list_angle2d(S, Pt, Result).
+    %list_angle2d(S, Punto, Result).
 % 3- butto in lista i primi 3 punti e guardo le "svolte"
 
 
@@ -128,7 +134,3 @@ ch(Points, Result):-
 
 
 
-
-
-).
-      
