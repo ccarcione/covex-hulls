@@ -6,8 +6,8 @@
 %%%%%%%%%%%%%%%%%%%%%
 
 % Estrae le coordinate x o y 
-x([A|As],A).
-y([A|As],As).
+x([A|_],A).
+y([_|As],As).
 
 % area2 calcola 2 volte l'area del triangolo ABC
 % in base a se l'area è positiva negativa o nulla possiamo dedurre come
@@ -66,18 +66,48 @@ listSort(A, Key, X):-
 %   OPERAZIONI SULLE LISTE  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aggiunge in coda alla lista il punto in input
-listAdd([], Fs, [Fs|[]]).
-listAdd([F|Fs], S, [F|Zs]):-
-    listAdd(Fs, S, Zs).
+addPointToList([], Fs, [Fs|[]]).
+addPointToList([F|Fs], S, [F|Zs]):-
+    addPointToList(Fs, S, Zs).
 
 % Elimina l'ultimo elemento inserito dalla coda della lista
-listDeleteLast([X], []):-!.
+listDeleteLast([_], []):-!.
 listDeleteLast([X|Xs], [X|T]):- listDelete(Xs, T).
 
 % Elimina l'elemento X dalla lista
 % Ricostruisce una lista che non contiene X
-listDelete(X, [X|T], T).
+listDelete(X, [X|T], T):-!.
 listDelete(X, [H|T], [H|S]):- listDelete(X, T, S).
+
+% cerca l'elemento minimo della lista
+searchMin([],[]):-!.
+searchMin([X], X):-!.
+searchMin([L|Ls], X):-
+    searchMin(Ls, Y),
+    Y<L,
+    X is Y.
+searchMin([L|Ls], X):-
+    searchMin(Ls, Y),
+    Y>=L,
+    X is L.
+
+findPosElement([Ele|_], Ele, 0):-!.
+findPosElement([_|T], Ele, Pos):- 
+    findPosElement(T, Ele, P1),
+    Pos is P1+1.
+%% data una lista e una posizione, mi restituisce l elemento 
+%della lista alla posizione in input.
+
+getElementToList([S|_], 0,S):-!.
+getElementToList([_|Ss],Pos,Ele):-
+    K is Pos-1,
+    getElementToList(Ss,K, Ele).
+
+% Data una lista in input B è la sua lunghezza
+listLength([], B):- B = 0.
+listLength([_El|Lista], B):- 
+	listLength(Lista, C),
+	B is (C+1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PREDICATI D'APPOGGIO    %
@@ -87,9 +117,9 @@ listDelete(X, [H|T], [H|S]):- listDelete(X, T, S).
 % casi base da rivedere quando ho lista vuota uno o tre punti.
 
 % predicati d'appoggio
-getFirstPointOfList([L|Ls], L).
+getFirstPointOfList([L|_], L).
 
-list_angle2d([], LPt, []):-!.
+list_angle2d([], _, []):-!.
 list_angle2d([S|Sx],Pt, [X|Xs]):-
     angle2d(Pt, S, X),
     list_angle2d(Sx, Pt, Xs).
@@ -104,7 +134,7 @@ fpy([X, K|Ks], [X|Zs]):-
     y(K,Y2),
     Y1==Y2,
     fpy([K|Ks],Zs), !.
-fpy([X, K|Ks], [X]):-
+fpy([X, K|_], [X]):-
     y(X,Y1),
     y(K,Y2),
     Y1<Y2.
@@ -119,16 +149,50 @@ fpx(X, Z):-
 %   PROCEDURA PRINCIPALE    %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ch(Points, Result):-
-    % 1- ordino la lista rispetto y, e parto con punto con coordinata xy minima
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %   TROVO PRIMI 2 PUNTI     %
+    %   CASO INIZIALE           %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % ordino la lista rispetto y, e parto con punto con coordinata xy minima
     listSort(Points, 2, Sorted),
     fpy(Sorted,Pt),
-    fpx(Pt, PtMin).
-    addPointToList(Hulls_List, PtMin),
-    rmPointToList(Sorted, S),
-% 2- p1 . . . pn ordinati in senso orario rispetto a P0 [angle2d]
-    %list_angle2d(S, Punto, Result).
-% 3- butto in lista i primi 3 punti e guardo le "svolte"
+    fpx(Pt, PtMin),
+    addPointToList([], PtMin, Hulls_List),
+    listDelete(PtMin, Sorted, S),
+    list_angle2d(S, PtMin, ListAngle2d),
+    %cerca il minimo ListAngle2d
+    searchMin(ListAngle2d, MinListAngle2d),
 
+    % inserisce in Hulls_List l'elemento in posizione Pos della lista S
+    findPosElement(ListAngle2d, MinListAngle2d, Pos),
+    % prendo dalla lista s l elemento alla posizione Pos
+    getElementToList(S, Pos, Element),
+    % aggiungo l elemento alla lista del risultato finale
+    addPointToList(Hulls_List, Element, H_L),
+    % elimino l elemento dalla lista dei punti di partenza ordinati.
+    listDelete(Element, S, Result).
+
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %   CHIAMATA AL PREDICATO RICORSIVO    %
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %recursive_main(S1, H_L, Result).
+
+
+%recursive_main([], Hulls_List, Hulls_List).
+%recursive_main():-
+    % 1- Seleziono gli ultimi 2 elementi messi in Hulls_List
+    %    in modo da avere il segmento AB
+    
+    % 2- Calcolo la list_angle2d con l'ultimo elemento messo in Hulls_List
+
+    % 3- Inserisco il punto (compatibile) con angolo polare più piccolo
+    
+    % 4- Controllo l'area degli ultimi 3 punti per capire che tipo
+    %    di svolta ho fatto:
+
+        % 4.1 - Se ho una svolta a sinistra lascio il punto nella Hulls_List
+        % 4.2 - Se ho una svolta a destra devo rimuovere il penultimo punto
+        %       dalla Hulls_List e lasciare quello selezionato l'odierno
 
 
 
