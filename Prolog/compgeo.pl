@@ -58,16 +58,20 @@ angle2d(A, B, R):- scalarProduct(A, B, Num),
     norm(B,Y),
     R is acos(Num/(X*Y)).
 
+% il predicato sort ordina la lista di punti in base alle ordinate
+listSort(A,X):-
+    sort(2, @<, A, X).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   OPERAZIONI SULLE LISTE  %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aggiunge in coda alla lista il punto in input
-%listAdd([], Fs, [Fs|[]]).
-%listAdd([F|Fs], S, [F|Zs]):-
-%    listAdd(Fs, S, Zs).
+listAdd([], Fs, [Fs|[]]).
+listAdd([F|Fs], S, [F|Zs]):-
+    listAdd(Fs, S, Zs).
 
 % Aggiunge in testa alla lista il punto in input
-%listAdd(X, Y, [X|Y]).
+listAddTesta(X, Y, [X|Y]).
 
 % Elimina l'ultimo elemento inserito dalla testa della lista
 %listDelete([X|Xs], Xs).
@@ -76,6 +80,48 @@ angle2d(A, B, R):- scalarProduct(A, B, Num),
 listDelete([X], []):-!.
 listDelete([X|Xs], [X|T]):- listDelete(Xs, T).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PROCEDURA PRINCIPALE    %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% ch(Points, Result).
+% casi base da rivedere quando ho lista vuota uno o tre punti.
+
+% predicati d'appoggio
+addPointToList([Y|Ys], [Y]).
+rmPointToList([S|Sx], Sx).
+
+list_angle2d([], LPt, []):-!.
+list_angle2d([S|Sx],Pt, [X|Xs]):-
+    angle2d(Pt, S, X),
+    list_angle2d(Sx, Pt, Xs).
+simpleSort(X, Z):-
+    sort(X,Z).
+setPt([ListPt|ListPts], ListPt).
+findPoint([X,Y|Xs],[X|Zs]):- (y(X))==(y(Y)),
+    (x(X))<(x(Y)).
+    
+      
+
+
+
+
+% 1- ordino la lista rispetto y, e parto con punto con coordinata xy minima
+ch(Points, Result):-
+    listSort(Points, Sorted),
+    findPoin(Sorted,Result).
+    
+
+
+
+
+
+    %addPointToList(Sorted, ListPt),
+    %setPt(ListPt, Pt), % in caso di due punti min con stessa y?
+    %rmPointToList(Sorted, S),
+% 2- p1 . . . pn ordinati in senso orario rispetto a P0 [angle2d]
+    %list_angle2d(S, Pt, Result).
+% 3- butto in lista i primi 3 punti e guardo le "svolte"
 
 
 
@@ -84,5 +130,5 @@ listDelete([X|Xs], [X|T]):- listDelete(Xs, T).
 
 
 
-
-
+).
+      
