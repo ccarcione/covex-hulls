@@ -144,6 +144,12 @@ fpx(X, Z):-
     listSort(X, 1, K),
     getFirstPointOfList(K, Z).
 
+% commento
+calcoloDirezione(Area, B, Hulls_List, R):-
+    Area<0,
+    listDelete(B, Hulls_List, R).
+calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
+    Area>=0.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PROCEDURA PRINCIPALE    %
@@ -163,36 +169,64 @@ ch(Points, Result):-
     %cerca il minimo ListAngle2d
     searchMin(ListAngle2d, MinListAngle2d),
 
-    % inserisce in Hulls_List l'elemento in posizione Pos della lista S
+    % trova in Hulls_List l'elemento in posizione Pos della lista S
     findPosElement(ListAngle2d, MinListAngle2d, Pos),
-    % prendo dalla lista s l elemento alla posizione Pos
+
+    % prendo dalla lista S l elemento alla posizione Pos
     getElementToList(S, Pos, Element),
+
     % aggiungo l elemento alla lista del risultato finale
     addPointToList(Hulls_List, Element, H_L),
+
     % elimino l elemento dalla lista dei punti di partenza ordinati.
-    listDelete(Element, S, Result).
+    listDelete(Element, S, S1),
 
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %   CHIAMATA AL PREDICATO RICORSIVO    %
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %recursive_main(S1, H_L, Result).
+    % CHIAMATA AL PREDICATO RICORSIVO
+    recursive_main(S1, H_L, Result).
 
 
-%recursive_main([], Hulls_List, Hulls_List).
-%recursive_main():-
+recursive_main([], Hulls_List, Hulls_List).
+recursive_main(ListPoint, Hulls_List, R):-
     % 1- Seleziono gli ultimi 2 elementi messi in Hulls_List
     %    in modo da avere il segmento AB
-    
+    listLength(Hulls_List, Length_Hulls_List),
+    getElementToList(Hulls_List, Length_Hulls_List-1, B),
+    getElementToList(Hulls_List, Length_Hulls_List-1, A),
+
     % 2- Calcolo la list_angle2d con l'ultimo elemento messo in Hulls_List
+    list_angle2d(ListPoint, B, ListAngle2d),
 
     % 3- Inserisco il punto (compatibile) con angolo polare più piccolo
-    
+    %cerca il minimo ListAngle2d
+    searchMin(ListAngle2d, MinListAngle2d),
+
+    % trova in Hulls_List l'elemento in posizione Pos della lista S
+    findPosElement(ListAngle2d, MinListAngle2d, Pos),
+
+    % prendo dalla lista S l elemento alla posizione Pos
+    getElementToList(ListPoint, Pos, C),
+
+    % aggiungo l elemento alla lista del risultato finale
+    addPointToList(Hulls_List, C, H_L),
+
+    % elimino l elemento dalla lista dei punti di partenza ordinati.
+    listDelete(C, ListPoint, ListPoint_Update),
+
     % 4- Controllo l'area degli ultimi 3 punti per capire che tipo
     %    di svolta ho fatto:
+        % 4.1 - Se ho una svolta a sinistra (Area>0) lascio il punto
+        %       nella Hulls_List
+        % 4.2 - Se ho una svolta a destra (Area<0) devo rimuovere il penultimo
+        %       punto (B) dalla Hulls_List
+    area2(A,B,C, Area),
+    calcoloDirezione(Area, B, Hulls_List, H_L),
 
-        % 4.1 - Se ho una svolta a sinistra lascio il punto nella Hulls_List
-        % 4.2 - Se ho una svolta a destra devo rimuovere il penultimo punto
-        %       dalla Hulls_List e lasciare quello selezionato l'odierno
+    % 5- chiamata ricoriva con 
+    recursive_main(ListPoint_Update, H_L, R).
+
+
+
+
 
 
 
