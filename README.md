@@ -14,15 +14,27 @@ al massimo il penultimo).
 L’algoritmo è il seguente:
 
 Algoritmo I.3 GrahamScan(P)
-    1: p0 ← punto con coordinata y minima
-    2: p1 . . . pn ordinati in senso orario rispetto a P0
-    3: Push(p0, S)
-    4: Push(p1, S)
-    5: Push(p2, S)
-    6: for i ← 3 . . . n do
-    7:      while angolo NextToTop(S), Top(S), pi non gira a destra do
-    8:          Pop(S)
-    9:      Push(S, pi)
-   10: RETURN (S)
-
+|
+|    1: p0 ← punto con coordinata y minima
+|
+|    2: p1 . . . pn ordinati in senso orario rispetto a P0
+|
+|    3: Push(p0, S)
+|
+|    4: Push(p1, S)
+|
+|    5: Push(p2, S)
+|
+|    6: for i ← 3 . . . n do
+|
+|    7:      while angolo NextToTop(S), Top(S), pi non gira a destra do
+|
+|    8:          Pop(S)
+|
+|    9:      Push(S, pi)
+|
+|   10: RETURN (S)
+|
 Per maggiori informazioni pagina 10 geocomp.pdf
+
+Noi non utilizziamo la pila ma una lista.
