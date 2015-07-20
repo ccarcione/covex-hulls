@@ -38,3 +38,17 @@ Algoritmo I.3 GrahamScan(P)
 Per maggiori informazioni pagina 10 geocomp.pdf
 
 Noi non utilizziamo la pila ma una lista.
+
+
+
+
+
+
+
+Istruzioni per la stesura del codice.
+
+Il codice C, (Common) Lisp ed il codice Prolog devono essere editati seguendo una serie minima di regole convenzionali al fine di renderli il più leggibili possibile. In particolare valgono le regole convenzionali seguenti.
+Il testo non deve MAI superare le 80 colonne di ampiezza.
+Il testo deve essere correttamente indentato.
+Gli operatori in C e Prolog vanno sempre delimitati correttamente: spazi attorno agli operatori eccezion fatta per le virgole, che hanno solo uno spazio dopo.
+Qualunque codice presentato che non segue queste semplici regole verrà cassato.
