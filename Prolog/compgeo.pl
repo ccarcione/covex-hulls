@@ -1,9 +1,9 @@
 % Nome Cognome Mat
 % Nome Cognome Mat
 
-%%%%%%%%%%%%%%%%%%%%%
-%   PROCEDURE BASE  %
-%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PROCEDURE BASE  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Estrae le coordinate x o y 
 x([A|_],A).
@@ -62,9 +62,9 @@ angle2d(A, B, R):- scalarProduct(A, B, Num),
 listSort(A, Key, X):-
     sort(Key, @=<, A, X).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   OPERAZIONI SULLE LISTE  %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   OPERAZIONI SULLE LISTE  
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Aggiunge in coda alla lista il punto in input
 addPointToList([], Fs, [Fs|[]]).
 addPointToList([F|Fs], S, [F|Zs]):-
@@ -85,7 +85,7 @@ searchMin([X], X):-!.
 searchMin([L|Ls], X):-
     searchMin(Ls, Y),
     Y<L,
-    X is Y.
+    X is Y, !.
 searchMin([L|Ls], X):-
     searchMin(Ls, Y),
     Y>=L,
@@ -109,9 +109,9 @@ listLength([_El|Lista], B):-
 	listLength(Lista, C),
 	B is (C+1).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   PREDICATI D'APPOGGIO    %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PREDICATI D'APPOGGIO    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % ch(Points, Result).
 % casi base da rivedere quando ho lista vuota uno o tre punti.
@@ -151,9 +151,9 @@ calcoloDirezione(Area, B, Hulls_List, R):-
 calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
     Area>=0.
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%   PROCEDURA PRINCIPALE    %
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   PROCEDURA PRINCIPALE    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ch(Points, Result):-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %   TROVO PRIMI 2 PUNTI     %
@@ -164,8 +164,8 @@ ch(Points, Result):-
     fpy(Sorted,Pt),
     fpx(Pt, PtMin),
     addPointToList([], PtMin, Hulls_List),
-    listDelete(PtMin, Sorted, S),
-    list_angle2d(S, PtMin, ListAngle2d),
+    listDelete(PtMin, Sorted, Sorted_Less_PtMin),
+    list_angle2d(Sorted_Less_PtMin, PtMin, ListAngle2d),
     %cerca il minimo ListAngle2d
     searchMin(ListAngle2d, MinListAngle2d),
 
@@ -173,25 +173,26 @@ ch(Points, Result):-
     findPosElement(ListAngle2d, MinListAngle2d, Pos),
 
     % prendo dalla lista S l elemento alla posizione Pos
-    getElementToList(S, Pos, Element),
+    getElementToList(Sorted_Less_PtMin, Pos, Element),
 
     % aggiungo l elemento alla lista del risultato finale
-    addPointToList(Hulls_List, Element, H_L),
+    addPointToList(Hulls_List, Element, Hulls_List_Plus_2ndPoint),
 
     % elimino l elemento dalla lista dei punti di partenza ordinati.
-    listDelete(Element, S, S1),
+    listDelete(Element, Sorted_Less_PtMin, Sorted_Less_2stPoint),
 
     % CHIAMATA AL PREDICATO RICORSIVO
-    recursive_main(S1, H_L, Result).
+    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPoint, Result).
 
 
-recursive_main([], Hulls_List, Hulls_List).
+recursive_main([], Hulls_List, Hulls_List):-!.
 recursive_main(ListPoint, Hulls_List, R):-
     % 1- Seleziono gli ultimi 2 elementi messi in Hulls_List
     %    in modo da avere il segmento AB
     listLength(Hulls_List, Length_Hulls_List),
     getElementToList(Hulls_List, Length_Hulls_List-1, B),
-    getElementToList(Hulls_List, Length_Hulls_List-1, A),
+    J is Length_Hulls_List-2,
+    getElementToList(Hulls_List, J, A),
 
     % 2- Calcolo la list_angle2d con l'ultimo elemento messo in Hulls_List
     list_angle2d(ListPoint, B, ListAngle2d),
@@ -207,10 +208,10 @@ recursive_main(ListPoint, Hulls_List, R):-
     getElementToList(ListPoint, Pos, C),
 
     % aggiungo l elemento alla lista del risultato finale
-    addPointToList(Hulls_List, C, H_L),
+    addPointToList(Hulls_List, C, Hulls_List_Plus_C),
 
     % elimino l elemento dalla lista dei punti di partenza ordinati.
-    listDelete(C, ListPoint, ListPoint_Update),
+    listDelete(C, ListPoint, ListPoint_Less_C),
 
     % 4- Controllo l'area degli ultimi 3 punti per capire che tipo
     %    di svolta ho fatto:
@@ -219,10 +220,10 @@ recursive_main(ListPoint, Hulls_List, R):-
         % 4.2 - Se ho una svolta a destra (Area<0) devo rimuovere il penultimo
         %       punto (B) dalla Hulls_List
     area2(A,B,C, Area),
-    calcoloDirezione(Area, B, Hulls_List, H_L),
+    calcoloDirezione(Area, B, Hulls_List_Plus_C, Hulls_List_Updated),
 
     % 5- chiamata ricoriva con 
-    recursive_main(ListPoint_Update, H_L, R).
+    recursive_main(ListPoint_Less_C, Hulls_List_Updated, R).
 
 
 
