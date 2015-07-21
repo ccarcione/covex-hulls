@@ -10,8 +10,8 @@ x([A|_],A).
 y([_|As],As).
 
 % area2 calcola 2 volte l'area del triangolo ABC
-% in base a se l'area è positiva negativa o nulla possiamo dedurre come
-% C sia posto rispetto al segmenprdoto AB
+% in base a se l'area è positiva, negativa, o nulla, possiamo dedurre come
+% C sia posto rispetto al segmento AB
 
 area2([Ax|Ay], [Bx|By], [Cx|Cy], Area):-
     P1 is (Bx-Ax),
@@ -91,13 +91,15 @@ searchMin([L|Ls], X):-
     Y>=L,
     X is L.
 
+% data una lista in input e un elemento (certo di essere presente),
+% il predicato trova la sua posizione
 findPosElement([Ele|_], Ele, 0):-!.
 findPosElement([_|T], Ele, Pos):- 
     findPosElement(T, Ele, P1),
     Pos is P1+1.
-%% data una lista e una posizione, mi restituisce l elemento 
-%della lista alla posizione in input.
 
+% data una lista S e una posizione Pos, il predicato mi restituisce l'elemento 
+% della lista S alla posizione in Pos.
 getElementToList([S|_], 0,S):-!.
 getElementToList([_|Ss],Pos,Ele):-
     K is Pos-1,
@@ -112,20 +114,15 @@ listLength([_El|Lista], B):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PREDICATI D'APPOGGIO    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% ch(Points, Result).
-% casi base da rivedere quando ho lista vuota uno o tre punti.
-
-% predicati d'appoggio
+% questo predicato permette di "prelevare" il primo elemento della lista
 getFirstPointOfList([L|_], L).
 
+% list_angle2d applica ricorsivamente il predicato angle2d con l'elemento in
+% testa della lista S e il punto PT
 list_angle2d([], _, []):-!.
 list_angle2d([S|Sx],Pt, [X|Xs]):-
     angle2d(Pt, S, X),
     list_angle2d(Sx, Pt, Xs).
-simpleSort(X, Z):-
-    sort(X,Z).
-
 
 % trova i punti y minimi dalla lista di tutti i punti ordinati
 fpy([X], [X]):-!.
@@ -144,7 +141,10 @@ fpx(X, Z):-
     listSort(X, 1, K),
     getFirstPointOfList(K, Z).
 
-% commento
+% questo predicato ha una funzione essenziale
+% se l'area del triangolo ABC è positiva tengo tutti i punti in lista
+% se l'area del triangolo ABC è negativa rimuovo il punto B dalla lista poichè
+% non è un punto del bordo, ma un punto incluso nella Chiglia Convessa
 calcoloDirezione(Area, B, Hulls_List, R):-
     Area<0,
     listDelete(B, Hulls_List, R).
