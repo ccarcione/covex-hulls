@@ -111,6 +111,15 @@ listLength([_El|Lista], B):-
 	listLength(Lista, C),
 	B is (C+1).
 
+% il predicato rmDuplicati rimuove tutti i duplicati dalla lista
+%rmduplicati(List, NewList).
+rmDuplicati([X], [X]):-!.
+rmDuplicati([L|Ls], K):-
+    findPosElement(Ls, L, _Pos),
+    rmDuplicati(Ls, K), !.
+rmDuplicati([L|Ls], [L|K]):-
+    rmDuplicati(Ls, K).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PREDICATI D'APPOGGIO    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,12 +164,19 @@ calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
 %   PROCEDURA PRINCIPALE    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ch(Points, Result):-
+    %controllo se l'input è corretto:
+    %   - che Points sia una lista
+    %   - almeno 3 punti in ingresso
+
+    % inizializzo la stringa di punti in modo da non avere duplicati
+    rmDuplicati(Points, Points_Less_Duplicates),
+
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %   TROVO PRIMI 2 PUNTI     %
     %   CASO INIZIALE           %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ordino la lista rispetto y, e parto con punto con coordinata xy minima
-    listSort(Points, 2, Sorted),
+    listSort(Points_Less_Duplicates, 2, Sorted),
     fpy(Sorted,Pt),
     fpx(Pt, PtMin),
     addPointToList([], PtMin, Hulls_List),
@@ -176,13 +192,13 @@ ch(Points, Result):-
     getElementToList(Sorted_Less_PtMin, Pos, Element),
 
     % aggiungo l elemento alla lista del risultato finale
-    addPointToList(Hulls_List, Element, Hulls_List_Plus_2ndPoint),
+    addPointToList(Hulls_List, Element, Hulls_List_Plus_2ndPt),
 
     % elimino l elemento dalla lista dei punti di partenza ordinati.
     listDelete(Element, Sorted_Less_PtMin, Sorted_Less_2stPoint),
 
     % CHIAMATA AL PREDICATO RICORSIVO
-    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPoint, Result).
+    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, Result).
 
 
 recursive_main([], Hulls_List, Hulls_List):-!.
