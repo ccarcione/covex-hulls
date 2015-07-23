@@ -70,10 +70,6 @@ addPointToList([], Fs, [Fs|[]]).
 addPointToList([F|Fs], S, [F|Zs]):-
     addPointToList(Fs, S, Zs).
 
-% Elimina l'ultimo elemento inserito dalla coda della lista
-listDeleteLast([_], []):-!.
-listDeleteLast([X|Xs], [X|T]):- listDelete(Xs, T).
-
 % Elimina l'elemento X dalla lista
 % Ricostruisce una lista che non contiene X
 listDelete(X, [X|T], T):-!.
