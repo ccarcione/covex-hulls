@@ -111,27 +111,17 @@
 )
 
 ; cerca la posizione dell'elemento nella lista
-(defun findPosElement (lista ele)
+(defun cerca_elemento (lista ele)
   (if (null lista) ()
 	(cond ((eql (car lista) ele) 0)
-		  (t(+ 1 (findPosElement (cdr lista) ele)))
-	)
-))
+		  (t(+ 1 (findPosElement (cdr lista) ele))))))
 
 ; restituisce l'elemento in posizione n della lista
-(defun getElementToList (lista n)
+(defun get_elemento (lista n)
 	(cond((= n 0) (car lista))
-		 (t(getElementToList (cdr lista) (- n 1)))
-	)
-)
+		 (t(getElementToList (cdr lista) (- n 1)))))
 
-
-
-
-(defun prova (x)
-	(atom x)
-)
 ; funzione che data una lista di liste, rimuove i doppioni
-(defun rmDuplicati (lista)
+(defun rimuovi_duplicati (lista)
 	(cond ((null (cdr lista)) (car lista))
           (t(remove-duplicates lista :test #'equal :from-end t) )))
