@@ -95,17 +95,43 @@
 	(cond ((null lista)nil)
 	      (t(pop lista))))	
 
-; dato in ingresso (rest lista) e il primo elemento
 ; cerca il minimo di una lista
-(defun cerca_min (lista ele-min)
+(defun cerca_minimo (lista)
+	(cerca_min_ric (cdr lista) (car lista)))
+
+(defun cerca_min_ric (lista ele-min)
 	(cond ((null (car lista)) ele-min)	;caso base: ho un solo elemento
 										;restituisco l'elemento
-        ((< (car lista) ele-min) (cerca_min (rest lista) (car lista)))	;se l'elemento in testa è minore
-        																	;dell'elemento min attuale, passo ricorsivo
-        																	;cerca_minimo (rest list) (first list)
-        (t (cerca_min (cdr lista) ele-min))
+        ((< (car lista) ele-min) (cerca_min_ric (rest lista) (car lista)))
+        ;se l'elemento in testa è minore
+        ;dell'elemento min attuale, passo ricorsivo
+        ;cerca_minimo (rest list) (first list)
+        (t (cerca_min_ric (cdr lista) ele-min))
     )
+)
+
+; cerca la posizione dell'elemento nella lista
+(defun findPosElement (lista ele)
+  (if (null lista) ()
+	(cond ((eql (car lista) ele) 0)
+		  (t(+ 1 (findPosElement (cdr lista) ele)))
+	)
+))
+
+; restituisce l'elemento in posizione n della lista
+(defun getElementToList (lista n)
+	(cond((= n 0) (car lista))
+		 (t(getElementToList (cdr lista) (- n 1)))
+	)
 )
 
 
 
+
+(defun prova (x)
+	(atom x)
+)
+; funzione che data una lista di liste, rimuove i doppioni
+(defun rmDuplicati (lista)
+	(cond ((null (cdr lista)) (car lista))
+          (t(remove-duplicates lista :test #'equal :from-end t) )))
