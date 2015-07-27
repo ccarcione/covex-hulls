@@ -167,6 +167,10 @@ read_points():-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PROCEDURA PRINCIPALE    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% goal di prova
+% ch([[3,2], [8,3], [13,1], [11,9], [7,6], [2,4], [15,7], [11,5]], X).
+
 ch(Points, Result):-
     %controllo se l'input è corretto:
     %   - che Points sia una lista
@@ -202,7 +206,8 @@ ch(Points, Result):-
     listDelete(Element, Sorted_Less_PtMin, Sorted_Less_2stPoint),
 
     % CHIAMATA AL PREDICATO RICORSIVO
-    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, Result).
+    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, K),
+    reverse(K, Result).
 
 
 recursive_main([], Hulls_List, Hulls_List):-!.
