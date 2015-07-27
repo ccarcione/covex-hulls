@@ -9,12 +9,14 @@
 (defun lengh (lista)
 	(cond((null lista)nil)
 		(t(+ 1 (length (cdr lista))))))
+
 ; funzione che data in input una lista, dopo aver controllato che la lista 
 ; sia fatta da due elementi mi restituisce il primo
 (defun x (lista) 
 	(cond ((null lista)nil)
 		  ((>(length lista)2) (error "abbiamo un problema"))
 		  (t(car lista))))
+
 ; funzione che data in input una lista, dopo aver controllato che la lista 
 ; sia fatta da due elementi mi restituisce il secondo
 (defun y (lista) 
@@ -31,11 +33,11 @@
 		  (t(-(* (- (x b) (x a)) (- (y c) (y a))) 
 		  	  (* (- (y b) (y a)) (- (x c) (x a)))
 		  	  ))))
+
 ; funzioni che mi servono per capire che tipo di svolta è avvenuta,  
 (defun left (a b c)
 	(if (> (area2 a b c) 0)T nil))
  
-
 (defun left-on (a b c)
 	(if (>= (area2 a b c) 0)T nil))
 
@@ -53,6 +55,7 @@
 		((null b)nil)
 		(t(+ (* (x a) (x b))
 			 (* (y a) (y b))))))
+
 ; Crea la funzione norm 
 ( defun norm (a)
  	(cond ((null  a) nil)
@@ -67,17 +70,25 @@
     	  (t(acos(/(prodScalare a b)
 	               (* (norm a) (norm b)))))))
 
+(defun lista_angle2d (lista punto)
+	(cond (not(null lista))
+		(cons (angle2d (car lista) punto)
+		  		   (list_angle2d (cdr lista) punto))
+	)
+)
 
 ; funzione che data come input una lista di listeordina tramite la sort
 ; rispetto al primo membro di ogni lista	
  (defun ordinax (lista_punti)
  	(cond ((null lista_punti)nil)
- 		  (t (sort lista_punti #'< :key #'first))))		
+ 		  (t (sort lista_punti #'< :key #'first))))	
+
 ; funzione che data come input una lista di listeordina tramite la sort
 ; rispetto al secondo membro di ogni lista	
  (defun ordinay (lista_punti)
  	(cond ((null lista_punti)nil)
  		  (t (sort lista_punti #'< :key #'second))))
+
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; operazioni sulle liste
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -114,14 +125,35 @@
 (defun cerca_elemento (lista ele)
   (if (null lista) ()
 	(cond ((eql (car lista) ele) 0)
-		  (t(+ 1 (findPosElement (cdr lista) ele))))))
+		  (t(+ 1 (cerca_elemento (cdr lista) ele))))))
 
 ; restituisce l'elemento in posizione n della lista
 (defun get_elemento (lista n)
 	(cond((= n 0) (car lista))
-		 (t(getElementToList (cdr lista) (- n 1)))))
+		 (t(get_elemento (cdr lista) (- n 1)))))
 
 ; funzione che data una lista di liste, rimuove i doppioni
 (defun rimuovi_duplicati (lista)
 	(cond ((null (cdr lista)) (car lista))
-          (t(remove-duplicates lista :test #'equal :from-end t) )))
+          (t(rimuovi_duplicati lista :test #'equal :from-end t) )))
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;	IMPLEMENTAZIONE DELL'ARGORITMO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; predicati d'appoggio al main
+(defun seleziona_primo_punto (listaPt)
+	(cons
+		(get_elemento (ordinax listaPt) 0)
+		(seleziona_secondo_punto (elimina_ele listaPt))
+	)
+)
+
+(defun seleziona_secondo_punto (listaPt)
+	(
+	)
+)
+
+(defun ch (Points)
+	(if (> 3 (lengh lista))
+		(seleziona_primo_punto (ordinay Points))))
