@@ -157,6 +157,14 @@ calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
     Area>=0.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%   LETTURA DA FILE    
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+read_points():-
+    open('/home/chrys/Documenti/Git/progettoLP/Prolog/input.txt', read, In),
+    read(In, X),
+    close(In).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PROCEDURA PRINCIPALE    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 ch(Points, Result):-
