@@ -73,7 +73,7 @@
 (defun lista_angle2d (lista punto)
 	(cond (not(null lista))
 		(cons (angle2d (car lista) punto)
-		  		   (list_angle2d (cdr lista) punto))
+		  		   (lista_angle2d (cdr lista) punto))
 	)
 )
 
@@ -135,7 +135,7 @@
 ; funzione che data una lista di liste, rimuove i doppioni
 (defun rimuovi_duplicati (lista)
 	(cond ((null (cdr lista)) (car lista))
-          (t(rimuovi_duplicati lista :test #'equal :from-end t) )))
+          (t(remove-duplicates lista :test #'equal :from-end t) )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	IMPLEMENTAZIONE DELL'ARGORITMO
