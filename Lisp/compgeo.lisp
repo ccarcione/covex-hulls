@@ -71,12 +71,9 @@
 	               (* (norm a) (norm b)))))))
 
 (defun lista_angle2d (lista punto)
-	(cond (not(null lista))
-		(cons (angle2d (car lista) punto)
-		  		   (lista_angle2d (cdr lista) punto))
-	)
-)
-
+	(cond ((null lista) nil)
+		((cons (angle2d (car lista) punto)
+		  		   (lista_angle2d (cdr lista) punto)))))
 ; funzione che data come input una lista di listeordina tramite la sort
 ; rispetto al primo membro di ogni lista	
  (defun ordinax (lista_punti)
@@ -150,10 +147,17 @@
 )
 
 (defun seleziona_secondo_punto (listaPt)
-	(
-	)
+  (listaPt)
 )
 
 (defun ch (Points)
-	(if (> 3 (lengh lista))
-		(seleziona_primo_punto (ordinay Points))))
+	(if (> 3 (lengh (rimuovi_duplicati Points))
+		(seleziona_primo_punto (ordinay (rimuovi_duplicati Points))))))
+
+ (defun prova (lista)
+   	(cond ((null lista) nil)
+          ((eql (y(first lista)) (y(second lista))) 
+                  (cons (first lista) (prova (rest lista))))
+          (t (car lista))
+    )
+)
