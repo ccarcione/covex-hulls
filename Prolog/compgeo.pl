@@ -53,7 +53,8 @@ norm1([V|Vs], Ris):-
 norm(V, Ris):- norm1(V, PSol), Ris is sqrt(PSol).
 
 % Dati due punti angle2d calcola l'angolo in radianti
-angle2d(A, B, R):- scalarProduct(A, B, Num),
+angle2d(A, B, R):- 
+    scalarProduct(A, B, Num),
     norm(A, X),
     norm(B,Y),
     R is acos(Num/(X*Y)).
@@ -74,6 +75,14 @@ addPointToList([F|Fs], S, [F|Zs]):-
 % Ricostruisce una lista che non contiene X
 listDelete(X, [X|T], T):-!.
 listDelete(X, [H|T], [H|S]):- listDelete(X, T, S).
+
+% Rimuovo l'elemento alla posizione K
+% Ricostruisco una stringa senza il K-esimo elemento
+listDeleteAt([_|Xs],0,Xs):-!.
+listDeleteAt([Y|Xs],K,[Y|Ys]) :- 
+	K > 0,
+   	K1 is K - 1, 
+	listDeleteAt(Xs,K1,Ys).
 
 % cerca l'elemento minimo della lista
 searchMin([],[]):-!.
@@ -146,15 +155,29 @@ fpx(X, Z):-
     listSort(X, 1, K),
     getFirstPointOfList(K, Z).
 
-% questo predicato ha una funzione essenziale
-% se l'area del triangolo ABC è positiva tengo tutti i punti in lista
-% se l'area del triangolo ABC è negativa rimuovo il punto B dalla lista poichè
-% non è un punto del bordo, ma un punto incluso nella Chiglia Convessa
-calcoloDirezione(Area, B, Hulls_List, R):-
-    Area<0,
-    listDelete(B, Hulls_List, R).
-calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
-    Area>=0.
+% trova punto con angolo polare minimo, aggiorna le liste punti e angoli
+% e restituisce il punto
+trova_pt(ListAngle2d, Sorted_Less_PtMin,
+            ListAngle2dLessMin, Sorted_Less_Element, Element):-
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %   trova punto
+    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %cerca il minimo ListAngle2d
+    searchMin(ListAngle2d, MinListAngle2d),
+
+    % trova in Hulls_List l'elemento in posizione Pos della lista S
+    findPosElement(ListAngle2d, MinListAngle2d, Pos),
+
+    % prendo dalla lista S l elemento alla posizione Pos
+    getElementToList(Sorted_Less_PtMin, Pos, Element),
+
+    % elimino l elemento dalla lista dei punti di partenza ordinati. 
+    listDelete(Element, Sorted_Less_PtMin, Sorted_Less_Element),
+
+    % elimino l elemento dalla lista degli angoli polari. 
+    listDeleteAt(ListAngle2d, Pos, ListAngle2dLessMin).
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   LETTURA DA FILE    
@@ -180,47 +203,39 @@ ch(Points, Result):-
     rmDuplicati(Points, Points_Less_Duplicates),
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %   TROVO PRIMI 2 PUNTI     %
+    %   TROVO PRIMI 3 PUNTI     %
     %   CASO INIZIALE           %
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % ordino la lista rispetto y, e parto con punto con coordinata xy minima
     listSort(Points_Less_Duplicates, 2, Sorted),
-    fpy(Sorted,Pt),
-    fpx(Pt, PtMin),
+    fpy(Sorted,Pty),
+    fpx(Pty, PtMin),
     addPointToList([], PtMin, Hulls_List),
     listDelete(PtMin, Sorted, Sorted_Less_PtMin),
     list_angle2d(Sorted_Less_PtMin, PtMin, ListAngle2d),
-    %cerca il minimo ListAngle2d
-    searchMin(ListAngle2d, MinListAngle2d),
-
-    % trova in Hulls_List l'elemento in posizione Pos della lista S
-    findPosElement(ListAngle2d, MinListAngle2d, Pos),
-
-    % prendo dalla lista S l elemento alla posizione Pos
-    getElementToList(Sorted_Less_PtMin, Pos, Element),
+    
+    % trovo secondo punto
+    trova_pt(ListAngle2d, Sorted_Less_PtMin,
+            L_A, L_P, Pt2),
 
     % aggiungo l elemento alla lista del risultato finale
-    addPointToList(Hulls_List, Element, Hulls_List_Plus_2ndPt),
+    addPointToList(Hulls_List, Pt2, Hulls_List_Plus_2ndPt),
 
-    % elimino l elemento dalla lista dei punti di partenza ordinati.
-    listDelete(Element, Sorted_Less_PtMin, Sorted_Less_2stPoint),
+    % trovo terzo punto
+    trova_pt(L_A, L_P,
+            ListAngle2d_Update, Sorted_Update, Pt3),
+
+    % aggiungo l elemento alla lista del risultato finale
+    addPointToList(Hulls_List_Plus_2ndPt, Pt3, Hulls_List_Plus_3ndPt),
 
     % CHIAMATA AL PREDICATO RICORSIVO
-    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, Result),!.
+    recursive_main(Sorted_Update, Hulls_List_Plus_3ndPt, ListAngle2d_Update, Result),!.
     %reverse(K, Result).
 
 
-recursive_main([], Hulls_List, Hulls_List):-!.
-recursive_main(ListPoint, Hulls_List, R):-
-    % 1- Seleziono gli ultimi 2 elementi messi in Hulls_List
-    %    in modo da avere il segmento AB
-    listLength(Hulls_List, Length_Hulls_List),
-    getElementToList(Hulls_List, Length_Hulls_List-1, B),
-    J is Length_Hulls_List-2,
-    getElementToList(Hulls_List, J, A),
-
-    % 2- Calcolo la list_angle2d con l'ultimo elemento messo in Hulls_List
-    list_angle2d(ListPoint, B, ListAngle2d),
+recursive_main([], Hulls_List, [], Hulls_List):-!.
+recursive_main(ListPoint, Hulls_List, ListAngle2d, R):-
+    
 
     % 3- Inserisco il punto (compatibile) con angolo polare più piccolo
     %cerca il minimo ListAngle2d
@@ -232,11 +247,11 @@ recursive_main(ListPoint, Hulls_List, R):-
     % prendo dalla lista S l elemento alla posizione Pos
     getElementToList(ListPoint, Pos, C),
 
-    % aggiungo l elemento alla lista del risultato finale
-    addPointToList(Hulls_List, C, Hulls_List_Plus_C),
-
     % elimino l elemento dalla lista dei punti di partenza ordinati.
     listDelete(C, ListPoint, ListPoint_Less_C),
+
+    % elimino l elemento dalla lista degli angoli polari. 
+    listDeleteAt(ListAngle2d, Pos, ListAngle2dLessMin),
 
     % 4- Controllo l'area degli ultimi 3 punti per capire che tipo
     %    di svolta ho fatto:
@@ -244,14 +259,41 @@ recursive_main(ListPoint, Hulls_List, R):-
         %       nella Hulls_List
         % 4.2 - Se ho una svolta a destra (Area<0) devo rimuovere il penultimo
         %       punto (B) dalla Hulls_List
-    area2(A,B,C, Area),
-    calcoloDirezione(Area, B, Hulls_List_Plus_C, Hulls_List_Updated),
+    
+    calcoloDirezione(Hulls_List, C, Hulls_List_Updated),
+
+     % aggiungo l elemento alla lista del risultato finale
+    addPointToList(Hulls_List_Updated, C, Hulls_List_Plus_C),
 
     % 5- chiamata ricoriva con 
-    recursive_main(ListPoint_Less_C, Hulls_List_Updated, R).
+    recursive_main(ListPoint_Less_C, Hulls_List_Plus_C, ListAngle2dLessMin, R).
 
 
-
+% questo predicato ha una funzione essenziale
+% se l'area del triangolo ABC è positiva tengo tutti i punti in lista
+% se l'area del triangolo ABC è negativa rimuovo il punto B dalla lista poichè
+% non è un punto del bordo, ma un punto incluso nella Chiglia Convessa
+calcoloDirezione([A], D, [A]):- !.
+calcoloDirezione(Hulls_List, C, Hulls_List_Update):-
+    % Seleziono gli ultimi 2 elementi messi in Hulls_List
+    % in modo da avere il segmento AB
+    listLength(Hulls_List, Length_Hulls_List),
+    getElementToList(Hulls_List, Length_Hulls_List-1, B),
+    J is Length_Hulls_List-2,
+    getElementToList(Hulls_List, J, A),
+    area2(A,B,C, Area),
+    Area<0,
+    listDelete(B, Hulls_List, Hulls_List_Less_B),
+    calcoloDirezione(Hulls_List_Less_B, C, Hulls_List_Update).
+calcoloDirezione(Hulls_List, C, Hulls_List):-
+    % Seleziono gli ultimi 2 elementi messi in Hulls_List
+    % in modo da avere il segmento AB
+    listLength(Hulls_List, Length_Hulls_List),
+    getElementToList(Hulls_List, Length_Hulls_List-1, B),
+    J is Length_Hulls_List-2,
+    getElementToList(Hulls_List, J, A),
+    area2(A,B,C, Area),
+    Area>=0.
 
 
 
