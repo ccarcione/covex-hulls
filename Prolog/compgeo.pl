@@ -6,14 +6,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Estrae le coordinate x o y 
-x([A|_],A).
-y([_|As],As).
+x([A,_],A).
+y([_,As],As).
 
 % area2 calcola 2 volte l'area del triangolo ABC
 % in base a se l'area è positiva, negativa, o nulla, possiamo dedurre come
 % C sia posto rispetto al segmento AB
 
-area2([Ax|Ay], [Bx|By], [Cx|Cy], Area):-
+area2([Ax,Ay], [Bx,By], [Cx,Cy], Area):-
     P1 is (Bx-Ax),
     P2 is (Cy-Ay),
     P3 is (By-Ay),
@@ -22,23 +22,23 @@ area2([Ax|Ay], [Bx|By], [Cx|Cy], Area):-
 
 % Predicato che dato A, B, C, ritorna true solo se C è strettamente a sinistra
 % del segmento AB
-left([Ax|Ay], [Bx|By], [Cx|Cy]):-
-    area2([Ax|Ay], [Bx|By], [Cx|Cy], Area),
+left([Ax,Ay], [Bx,By], [Cx,Cy]):-
+    area2([Ax,Ay], [Bx,By], [Cx,Cy], Area),
     Area > 0.
 
 % Predicato che dato A, B, C, ritorna true solo se C è a sinistra
 % del segmento AB, o se i 3 punti sono allineati
-left-on([Ax|Ay], [Bx|By], [Cx|Cy]):-
-    area2([Ax|Ay], [Bx|By], [Cx|Cy], Area),
+left-on([Ax,Ay], [Bx,By], [Cx,Cy]):-
+    area2([Ax,Ay], [Bx,By], [Cx,Cy], Area),
     Area >= 0.
 
 % Predicato che dato A, B, C, ritorna true solo se i tre punti sono allineati
-collinear([Ax|Ay], [Bx|By], [Cx|Cy]):-
-    area2([Ax|Ay], [Bx|By], [Cx|Cy], Area),
+collinear([Ax,Ay], [Bx,By], [Cx,Cy]):-
+    area2([Ax,Ay], [Bx,By], [Cx,Cy], Area),
     Area == 0.
 
 % Predicato per il calcolo del prodotto scalare
-scalarProduct([Ax|Ay], [Bx|By], Num):- 
+scalarProduct([Ax,Ay], [Bx,By], Num):- 
     P1 is (Ax*Bx),
     P2 is (Ay*By),
     Num is P1+P2.
@@ -159,10 +159,10 @@ calcoloDirezione(Area, _B, Hulls_List, Hulls_List):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   LETTURA DA FILE    
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-read_points():-
-    open('/home/chrys/Documenti/Git/progettoLP/Prolog/input.txt', read, In),
-    read(In, X),
-    close(In).
+read_points(File,List):-
+    csv_read_file(File,R,[functor(point),separator(0'\t)]),
+    maplist(assert, R),
+    setof([X, Y], point(X,Y), List).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %   PROCEDURA PRINCIPALE    
@@ -206,8 +206,8 @@ ch(Points, Result):-
     listDelete(Element, Sorted_Less_PtMin, Sorted_Less_2stPoint),
 
     % CHIAMATA AL PREDICATO RICORSIVO
-    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, K),
-    reverse(K, Result).
+    recursive_main(Sorted_Less_2stPoint, Hulls_List_Plus_2ndPt, Result),!.
+    %reverse(K, Result).
 
 
 recursive_main([], Hulls_List, Hulls_List):-!.
