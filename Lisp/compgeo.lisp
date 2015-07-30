@@ -134,6 +134,14 @@
 	(cond ((null (cdr lista)) (car lista))
           (t(remove-duplicates lista :test #'equal :from-end t) )))
 
+; preducato che restituisce una lista con tutti i punti con y min assoluta
+ (defun lista_y_min (lista)
+   	(cond ((null lista) nil)
+          ((eql (y(first lista)) (y(second lista))) 
+                  (cons (first lista) (lista_y_min (rest lista))))
+          (t (car lista))
+    )
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	IMPLEMENTAZIONE DELL'ARGORITMO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -141,7 +149,7 @@
 ; predicati d'appoggio al main
 (defun seleziona_primo_punto (listaPt)
 	(cons
-		(get_elemento (ordinax listaPt) 0)
+		(car(ordinax (lista_y_min (listaPt))))
 		(seleziona_secondo_punto (elimina_ele listaPt))
 	)
 )
@@ -151,13 +159,8 @@
 )
 
 (defun ch (Points)
-	(if (> 3 (lengh (rimuovi_duplicati Points))
-		(seleziona_primo_punto (ordinay (rimuovi_duplicati Points))))))
-
- (defun prova (lista)
-   	(cond ((null lista) nil)
-          ((eql (y(first lista)) (y(second lista))) 
-                  (cons (first lista) (prova (rest lista))))
-          (t (car lista))
-    )
+	(if (>= 3 (lengh (rimuovi_duplicati Points)))
+		(seleziona_primo_punto (ordinay (rimuovi_duplicati Points)))
+	)
 )
+
