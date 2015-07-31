@@ -91,18 +91,25 @@
 ; operazioni sulle liste
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-;funione che dati un elemento (una lista di due elementi) e una lista 
+;funzione che dati un elemento (una lista di due elementi) e una lista 
 ; aggiunge l'elemento alla lista
 ; l'aggiunta avviene in testa
-(defun inserisci_ele ( Ele lista)
+(defun inserisci_ele_in_testa (Ele lista)
 	(cond ((null Ele)nil)
 		  (t(push Ele lista))))		  	  	   
 
 ; funzione che data una lista elimina l elemento in testa alla lista
 ; infatti il risultato è l elemento eliminato
-(defun elimina_ele (lista)
+(defun elimina_ele_in_testa (lista)
 	(cond ((null lista)nil)
-	      (t(pop lista))))	
+	      (t(rest lista))))	
+
+; predicato che elimina l'elemento Ele dalla lista
+(defun elimina_ele (Ele lista)
+	(cond ((equal Ele (car lista)) (cdr lista))
+		(t(cons (car lista) (elimina_ele Ele (cdr lista))))
+	)
+)
 
 ; cerca il minimo di una lista
 (defun cerca_minimo (lista)
@@ -140,7 +147,7 @@
    	(cond ((null lista) nil)
           ((eql (y(first lista)) (y(second lista))) 
                   (cons (first lista) (lista_y_min (rest lista))))
-          (t (car lista))
+          (t (list (car lista)))
     )
 )
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -150,13 +157,13 @@
 ; predicati d'appoggio al main
 (defun seleziona_primo_punto (listaPt)
 	(cons
-		(car(ordinax (lista_y_min (listaPt))))
-		(seleziona_secondo_punto (elimina_ele listaPt))
+		(car(ordinax (lista_y_min listaPt)))
+		(seleziona_secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt))) listaPt))
 	)
 )
 
 (defun seleziona_secondo_punto (listaPt)
-  (listaPt)
+  (0)
 )
 
 (defun ch (Points)
