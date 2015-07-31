@@ -53,11 +53,26 @@ norm1([V|Vs], Ris):-
 norm(V, Ris):- norm1(V, PSol), Ris is sqrt(PSol).
 
 % Dati due punti angle2d calcola l'angolo in radianti
-angle2d(A, B, R):- 
-    scalarProduct(A, B, Num),
-    norm(A, X),
-    norm(B,Y),
-    R is acos(Num/(X*Y)).
+%angle2d(A, B, R):- 
+%    scalarProduct(A, B, Num),
+%    norm(A, X),
+%    norm(B,Y),
+%    R is acos(Num/(X*Y)).
+angle2d(A, B, R):- y(B,Yb),
+    y(A,Ya),
+    X2 is (Yb-Ya),
+    X2==0,
+    R is 10, !.
+angle2d(A, B, R):- x(B, Xb),
+    x(A, Xa),
+    X1 is (Xb-Xa),
+    y(B,Yb),
+    y(A,Ya),
+    X2 is (Yb-Ya),
+    %X1\=0,
+    X2\=0,
+    X3 is X1/X2,
+    R is atan(X3).
 
 % il predicato sort ordina la lista di punti in base alle ordinate
 listSort(A, Key, X):-
@@ -85,15 +100,15 @@ listDeleteAt([Y|Xs],K,[Y|Ys]) :-
 	listDeleteAt(Xs,K1,Ys).
 
 % cerca l'elemento minimo della lista
-searchMin([],[]):-!.
-searchMin([X], X):-!.
-searchMin([L|Ls], X):-
-    searchMin(Ls, Y),
-    Y<L,
+searchMax([],[]):-!.
+searchMax([X], X):-!.
+searchMax([L|Ls], X):-
+    searchMax(Ls, Y),
+    Y>L,
     X is Y, !.
-searchMin([L|Ls], X):-
-    searchMin(Ls, Y),
-    Y>=L,
+searchMax([L|Ls], X):-
+    searchMax(Ls, Y),
+    Y=<L,
     X is L.
 
 % data una lista in input e un elemento (certo di essere presente),
@@ -163,7 +178,7 @@ trova_pt(ListAngle2d, Sorted_Less_PtMin,
     %   trova punto
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %cerca il minimo ListAngle2d
-    searchMin(ListAngle2d, MinListAngle2d),
+    searchMax(ListAngle2d, MinListAngle2d),
 
     % trova in Hulls_List l'elemento in posizione Pos della lista S
     findPosElement(ListAngle2d, MinListAngle2d, Pos),
@@ -192,7 +207,7 @@ read_points(File,List):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % goal di prova
-% ch([[3,2], [8,3], [13,1], [11,9], [7,6], [2,4], [15,7], [11,5]], X).
+% ch([[3,2], [8,3], [13,1], [11,9], [7,6], [2,4], [15,7], [11,5]], CH).
 
 ch(Points, Result):-
     %controllo se l'input è corretto:
@@ -239,7 +254,7 @@ recursive_main(ListPoint, Hulls_List, ListAngle2d, R):-
 
     % 3- Inserisco il punto (compatibile) con angolo polare più piccolo
     %cerca il minimo ListAngle2d
-    searchMin(ListAngle2d, MinListAngle2d),
+    searchMax(ListAngle2d, MinListAngle2d),
 
     % trova in Hulls_List l'elemento in posizione Pos della lista S
     findPosElement(ListAngle2d, MinListAngle2d, Pos),
@@ -273,7 +288,16 @@ recursive_main(ListPoint, Hulls_List, ListAngle2d, R):-
 % se l'area del triangolo ABC è positiva tengo tutti i punti in lista
 % se l'area del triangolo ABC è negativa rimuovo il punto B dalla lista poichè
 % non è un punto del bordo, ma un punto incluso nella Chiglia Convessa
-calcoloDirezione([A], D, [A]):- !.
+calcoloDirezione([A], _, [A]):- !.
+calcoloDirezione(Hulls_List, C, Hulls_List):-
+    % Seleziono gli ultimi 2 elementi messi in Hulls_List
+    % in modo da avere il segmento AB
+    listLength(Hulls_List, Length_Hulls_List),
+    getElementToList(Hulls_List, Length_Hulls_List-1, B),
+    J is Length_Hulls_List-2,
+    getElementToList(Hulls_List, J, A),
+    area2(A,B,C, Area),
+    Area>=0, !.
 calcoloDirezione(Hulls_List, C, Hulls_List_Update):-
     % Seleziono gli ultimi 2 elementi messi in Hulls_List
     % in modo da avere il segmento AB
@@ -285,15 +309,7 @@ calcoloDirezione(Hulls_List, C, Hulls_List_Update):-
     Area<0,
     listDelete(B, Hulls_List, Hulls_List_Less_B),
     calcoloDirezione(Hulls_List_Less_B, C, Hulls_List_Update).
-calcoloDirezione(Hulls_List, C, Hulls_List):-
-    % Seleziono gli ultimi 2 elementi messi in Hulls_List
-    % in modo da avere il segmento AB
-    listLength(Hulls_List, Length_Hulls_List),
-    getElementToList(Hulls_List, Length_Hulls_List-1, B),
-    J is Length_Hulls_List-2,
-    getElementToList(Hulls_List, J, A),
-    area2(A,B,C, Area),
-    Area>=0.
+
 
 
 
