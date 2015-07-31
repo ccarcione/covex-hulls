@@ -41,7 +41,7 @@
 (defun left-on (a b c)
 	(if (>= (area2 a b c) 0)T nil))
 
-; la svolta è nulla, nel senso che i tre punti solo collineari
+; la svolta è nulla, nel senso che i tre punti solo allineati
 (defun is-collinear (a b c)
 	(if (= (area2 a b c) 0)T nil))
 
@@ -71,18 +71,20 @@
     	  (t(atan(/(- (x b) (x a))
 	               (- (y b) (y a)))))))
 
+; applico il predicato angle2d a ogni elemento della lista
 (defun lista_angle2d (lista punto)
 	(cond ((null lista) nil)
 		((cons (angle2d (car lista) punto)
 		  		   (lista_angle2d (cdr lista) punto)))))
-; funzione che data come input una lista di listeordina tramite la sort
-; rispetto al primo membro di ogni lista	
+
+; funzione che ha come input una lista di punti e
+; li ordina rispetto alle x	
  (defun ordinax (lista_punti)
  	(cond ((null lista_punti)nil)
  		  (t (sort lista_punti #'< :key #'first))))	
 
-; funzione che data come input una lista di listeordina tramite la sort
-; rispetto al secondo membro di ogni lista	
+; funzione che ha come input una lista di punti e
+; li ordina rispetto alle y
  (defun ordinay (lista_punti)
  	(cond ((null lista_punti)nil)
  		  (t (sort lista_punti #'< :key #'second))))
@@ -98,8 +100,7 @@
 	(cond ((null Ele)nil)
 		  (t(push Ele lista))))		  	  	   
 
-; funzione che data una lista elimina l elemento in testa alla lista
-; infatti il risultato è l elemento eliminato
+; funzione che data una lista restituisce l elemento in testa alla lista
 (defun pop-lista (lista)
 	(cond ((null lista)nil)
 	      (t(pop lista))))	
@@ -111,7 +112,7 @@
 	)
 )
 
-; cerca il minimo di una lista
+; cerca il massimo in una lista
 (defun cerca_massimo (lista)
 	(cerca_max_ric (cdr lista) (car lista)))
 
@@ -126,23 +127,23 @@
     )
 )
 
-; cerca la posizione dell'elemento nella lista
+; predicato che cerca la posizione dell'elemento nella lista
 (defun cerca_pos_elemento (lista ele)
   (if (null lista) ()
 	(cond ((eql (car lista) ele) 0)
 		  (t(+ 1 (cerca_pos_elemento (cdr lista) ele))))))
 
-; restituisce l'elemento in posizione n della lista
+; predicato che restituisce l'elemento in posizione n della lista
 (defun get_elemento (lista n)
 	(cond((= n 0) (car lista))
 		 (t(get_elemento (cdr lista) (- n 1)))))
 
-; funzione che data una lista di liste, rimuove i doppioni
+; funzione che data una lista di punti, rimuove i doppioni
 (defun rimuovi_duplicati (lista)
 	(cond ((null (cdr lista)) (car lista))
           (t(remove-duplicates lista :test #'equal :from-end t) )))
 
-; preducato che restituisce una lista con tutti i punti con y min assoluta
+; predicato che restituisce una lista con tutti i punti con y minore assoluta
  (defun lista_y_min (lista)
    	(cond ((null lista) nil)
           ((eql (y(first lista)) (y(second lista))) 
@@ -151,6 +152,12 @@
     )
 )
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;	IMPLEMENTAZIONE DELL'ARGORITMO
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+; predicato d'appoggio al main usato per trovare il 
+; punto successivo da includere nella Hulls List
 (defun get_nextPt (points listaAngoli)
 	(get_elemento points
 				(cerca_pos_elemento listaAngoli
@@ -159,14 +166,22 @@
   	)
 )
 
+; predicato d'appoggio al main usato per eliminare
+; l'angolo del punto scelto da aggiungere alla Hulls List 
 (defun elimina_ele_listaAngoli (listaAngoli)
 	(elimina_ele (cerca_massimo listaAngoli) listaAngoli)
 )
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;	IMPLEMENTAZIONE DELL'ARGORITMO
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; predicati d'appoggio al main
+; questo predicato decide quale saranno i punti a far parte della Hulls List
+; in base al calcolo dell'area degli ultimi 3 punti pila
+(defun calcoloDirezione (pila ptC)
+	(if (not(left-on (second pila) (first pila) ptC))
+		(calcoloDirezione (rest pila) ptC)	;elimina B e ricorsione
+		(push_lista ptC pila)	;push ptC e concludi
+	)
+)
+
+; predicati d'appoggio al main per trovare i primi 3 punti iniziali
 (defun primo_punto (listaPt)
 	(secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt)))listaPt)
 				(push_lista (car(ordinax (lista_y_min listaPt))) (list))
@@ -189,6 +204,7 @@
   )
 )
 
+; passo main ricorsivo, quando la lista è vuota chiama un predicato che svuota la pila
 (defun recursive_main (listaPt pila listaAngoli)
 	(if (null listaPt) (stampa_pila pila)
 		(recursive_main (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)	;passo la lista dei punti aggiornata
@@ -200,17 +216,14 @@
 	)
 )
 
-(defun calcoloDirezione (pila ptC)
-	(if (not(left-on (second pila) (first pila) ptC))
-		(calcoloDirezione (rest pila) ptC)	;elimina B e ricorsione
-		(push_lista ptC pila)	;push ptC e concludi
-	)
-)
-
+; predicato che mostra la pila su monitor
 (defun stampa_pila (pila)
 	(cons (car pila) (rest pila))
 )
-;(defparameter app3 (list (list 5 1) (list 3 3) (list -4 1) (list 1 5) (list -1 1) (list 4 -2) (list -2 -1) (list 2 -2) (list 1 -1)))
+
+; goal di prova
+; (defparameter app3 (list (list 5 1) (list 3 3) (list -4 1) (list 1 5) (list -1 1) (list 4 -2) (list -2 -1) (list 2 -2) (list 1 -1)))
+; chiamata principale del programma
 (defun ch (Points)
 	(if (>= (lengh (rimuovi_duplicati Points)) 3)
 		(primo_punto (ordinay (rimuovi_duplicati Points)))
@@ -218,3 +231,12 @@
 	)
 )
 
+; predicato per lettura punti da file
+(defun read-points (filename)
+	(with-open-file (stream filename)
+	    (do ((line (read-line stream nil)
+	               (read-line stream nil)))
+	        ((null line))
+	      (print line))
+	)
+)
