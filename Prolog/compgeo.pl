@@ -228,9 +228,6 @@ read_points(File, List):-
 
 ch(Points, Result):-
     % 1- controllo se l'input è corretto:
-    %   - che Points sia una lista
-    %   - almeno 3 punti in ingresso
-
     % inizializzo la stringa di punti in modo da non avere duplicati
     rmDuplicati(Points, Points_Less_Duplicates),
 
