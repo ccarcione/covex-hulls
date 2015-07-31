@@ -67,8 +67,9 @@
 (defun angle2d (a b)
     (cond ((null a) nil)
     	  ((null b) nil)
-    	  (t(acos(/(prodScalare a b)
-	               (* (norm a) (norm b)))))))
+    	  ((= (- (y b) (y a)) 0)10)
+    	  (t(atan(/(- (x b) (x a))
+	               (- (y b) (y a)))))))
 
 (defun lista_angle2d (lista punto)
 	(cond ((null lista) nil)
