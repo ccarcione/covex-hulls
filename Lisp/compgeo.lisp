@@ -233,10 +233,26 @@
 
 ; predicato per lettura punti da file
 (defun read-points (filename)
-	(with-open-file (stream filename)
-	    (do ((line (read-line stream nil)
-	               (read-line stream nil)))
-	        ((null line))
-	      (print line))
+	(parse (rea-from-file filename))
+)
+
+; datogli la lista estraggo le coppie di punti
+(defun parse (lista)
+	(cond((null lista)nil)
+		 (t(cons (make-point (first lista) (second lista))
+		 		(parse (cdr(cdr lista)))))
 	)
 )
+
+; predicato che legge da file e ritorna una lista
+(defun read-list-from (input-stream)
+  (let ((line (read input-stream NIL)))
+    (if (not (null line))
+	(cons line (read-list-from input-stream)))))
+
+(defun rea-from-file (filename)
+  (cond ((null filename) (error "Filename errato"))
+	(T (with-open-file (in filename
+			       :direction :input
+			       :if-does-not-exist :error)
+			   (read-list-from in)))))
