@@ -168,7 +168,7 @@
 
 ; predicati d'appoggio al main
 (defun primo_punto (listaPt)
-	(secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt)))listaPt)	;passo la lista aggiornata
+	(secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt)))listaPt)
 				(push_lista (car(ordinax (lista_y_min listaPt))) (list))
 				(rest (lista_angle2d listaPt
 									(car(ordinax (lista_y_min listaPt)))))
@@ -176,9 +176,9 @@
 )
 
 (defun secondo_punto (listaPt pila listaAngoli)
-  (terzo_punto (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)
-  			(push_lista (get_nextPt listaPt listaAngoli) pila)
-  			(elimina_ele (cerca_massimo listaAngoli) listaAngoli)
+  (terzo_punto (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)	;passo la lista dei punti aggiornata
+  			(push_lista (get_nextPt listaPt listaAngoli) pila)			;passo la pila aggiornata
+  			(elimina_ele (cerca_massimo listaAngoli) listaAngoli)		;elimino relativo angolo del punto aggiunto in pila
   )
 )
 
@@ -190,9 +190,26 @@
 )
 
 (defun recursive_main (listaPt pila listaAngoli)
-	(cons (car pila) (rest pila))
+	(if (null listaPt) (stampa_pila pila)
+		(recursive_main (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)	;passo la lista dei punti aggiornata
+	  			(calcoloDirezione pila (get_nextPt listaPt listaAngoli))			;controlla che gli ultimi 3 punti (ABC) abbiano area>=0
+	  																		; altrimenti cancella B e ricontrolla
+	  																		;alla fine ho la pila aggiornata
+	  			(elimina_ele_listaAngoli listaAngoli)						;elimino relativo angolo del punto aggiunto in pila
+		)
+	)
 )
 
+(defun calcoloDirezione (pila ptC)
+	(if (not(left-on (second pila) (first pila) ptC))
+		(calcoloDirezione (rest pila) ptC)	;elimina B e ricorsione
+		(push_lista ptC pila)	;push ptC e concludi
+	)
+)
+
+(defun stampa_pila (pila)
+	(cons (car pila) (rest pila))
+)
 ;(defparameter app3 (list (list 5 1) (list 3 3) (list -4 1) (list 1 5) (list -1 1) (list 4 -2) (list -2 -1) (list 2 -2) (list 1 -1)))
 (defun ch (Points)
 	(if (>= (lengh (rimuovi_duplicati Points)) 3)
