@@ -218,7 +218,7 @@
 
 ; predicato che mostra la pila su monitor
 (defun stampa_pila (pila)
-	(cons (car pila) (rest pila))
+	(reverse (cons (car pila) (rest pila)))
 )
 
 ; goal di prova
