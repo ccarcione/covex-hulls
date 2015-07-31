@@ -48,21 +48,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; funzioni di appoggio per definire angle2d
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-; definizione del prodotto scalare per usare la funzione angle2d
-( defun prodScalare (a b)
-	(cond((null a )nil)
-		((null b)nil)
-		(t(+ (* (x a) (x b))
-			 (* (y a) (y b))))))
-
-; Crea la funzione norm 
-( defun norm (a)
- 	(cond ((null  a) nil)
- 		  (t(sqrt(+(*(x a) (x a))
- 		  	      (* (y a) (y a)))))))
-
-; utiliziamo il prodotto e le norme per calcolarci il coseno dell angolo
 ; per trovare il valore dell angolo in radianti utilizziamo l arcoseno
 (defun angle2d (a b)
     (cond ((null a) nil)
@@ -71,7 +56,7 @@
     	  (t(atan(/(- (x b) (x a))
 	               (- (y b) (y a)))))))
 
-; applico il predicato angle2d a ogni elemento della lista
+; applico la funzione angle2d a ogni elemento della lista
 (defun lista_angle2d (lista punto)
 	(cond ((null lista) nil)
 		((cons (angle2d (car lista) punto)
@@ -105,7 +90,7 @@
 	(cond ((null lista)nil)
 	      (t(pop lista))))	
 
-; predicato che elimina l'elemento Ele dalla lista
+; funzione che elimina l'elemento Ele dalla lista
 (defun elimina_ele (Ele lista)
 	(cond ((equal Ele (car lista)) (cdr lista))
 		(t(cons (car lista) (elimina_ele Ele (cdr lista))))
@@ -127,13 +112,13 @@
     )
 )
 
-; predicato che cerca la posizione dell'elemento nella lista
+; funzione che cerca la posizione dell'elemento nella lista
 (defun cerca_pos_elemento (lista ele)
   (if (null lista) ()
 	(cond ((eql (car lista) ele) 0)
 		  (t(+ 1 (cerca_pos_elemento (cdr lista) ele))))))
 
-; predicato che restituisce l'elemento in posizione n della lista
+; funzione che restituisce l'elemento in posizione n della lista
 (defun get_elemento (lista n)
 	(cond((= n 0) (car lista))
 		 (t(get_elemento (cdr lista) (- n 1)))))
@@ -143,7 +128,7 @@
 	(cond ((null (cdr lista)) (car lista))
           (t(remove-duplicates lista :test #'equal :from-end t) )))
 
-; predicato che restituisce una lista con tutti i punti con y minore assoluta
+; funzione che restituisce una lista con tutti i punti con y minore assoluta
  (defun lista_y_min (lista)
    	(cond ((null lista) nil)
           ((eql (y(first lista)) (y(second lista))) 
@@ -156,7 +141,7 @@
 ;	IMPLEMENTAZIONE DELL'ARGORITMO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-; predicato d'appoggio al main usato per trovare il 
+; funzione d'appoggio al main usato per trovare il 
 ; punto successivo da includere nella Hulls List
 (defun get_nextPt (points listaAngoli)
 	(get_elemento points
@@ -166,13 +151,13 @@
   	)
 )
 
-; predicato d'appoggio al main usato per eliminare
+; funzione d'appoggio al main usato per eliminare
 ; l'angolo del punto scelto da aggiungere alla Hulls List 
 (defun elimina_ele_listaAngoli (listaAngoli)
 	(elimina_ele (cerca_massimo listaAngoli) listaAngoli)
 )
 
-; questo predicato decide quale saranno i punti a far parte della Hulls List
+; questo funzione decide quale saranno i punti a far parte della Hulls List
 ; in base al calcolo dell'area degli ultimi 3 punti pila
 (defun calcoloDirezione (pila ptC)
 	(if (not(left-on (second pila) (first pila) ptC))
@@ -181,7 +166,7 @@
 	)
 )
 
-; predicati d'appoggio al main per trovare i primi 3 punti iniziali
+; funzione d'appoggio al main per trovare i primi 3 punti iniziali
 (defun primo_punto (listaPt)
 	(secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt)))listaPt)
 				(push_lista (car(ordinax (lista_y_min listaPt))) (list))
@@ -204,7 +189,7 @@
   )
 )
 
-; passo main ricorsivo, quando la lista è vuota chiama un predicato che svuota la pila
+; passo main ricorsivo, quando la lista è vuota chiama un funzione che svuota la pila
 (defun recursive_main (listaPt pila listaAngoli)
 	(if (null listaPt) (stampa_pila pila)
 		(recursive_main (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)	;passo la lista dei punti aggiornata
@@ -216,7 +201,7 @@
 	)
 )
 
-; predicato che mostra la pila su monitor
+; funzione che mostra la pila su monitor
 (defun stampa_pila (pila)
 	(reverse (cons (car pila) (rest pila)))
 )
@@ -231,7 +216,7 @@
 	)
 )
 
-; predicato per lettura punti da file
+; funzione per lettura punti da file
 (defun read-points (filename)
 	(parse (rea-from-file filename))
 )
@@ -244,7 +229,7 @@
 	)
 )
 
-; predicato che legge da file e ritorna una lista
+; funzione che legge da file e ritorna una lista
 (defun read-list-from (input-stream)
   (let ((line (read input-stream NIL)))
     (if (not (null line))
