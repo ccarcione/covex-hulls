@@ -94,15 +94,15 @@
 ;funzione che dati un elemento (una lista di due elementi) e una lista 
 ; aggiunge l'elemento alla lista
 ; l'aggiunta avviene in testa
-(defun inserisci_ele_in_testa (Ele lista)
+(defun push_lista (Ele lista)
 	(cond ((null Ele)nil)
 		  (t(push Ele lista))))		  	  	   
 
 ; funzione che data una lista elimina l elemento in testa alla lista
 ; infatti il risultato è l elemento eliminato
-(defun elimina_ele_in_testa (lista)
+(defun pop-lista (lista)
 	(cond ((null lista)nil)
-	      (t(rest lista))))	
+	      (t(pop lista))))	
 
 ; predicato che elimina l'elemento Ele dalla lista
 (defun elimina_ele (Ele lista)
@@ -112,25 +112,25 @@
 )
 
 ; cerca il minimo di una lista
-(defun cerca_minimo (lista)
-	(cerca_min_ric (cdr lista) (car lista)))
+(defun cerca_massimo (lista)
+	(cerca_max_ric (cdr lista) (car lista)))
 
-(defun cerca_min_ric (lista ele-min)
+(defun cerca_max_ric (lista ele-min)
 	(cond ((null (car lista)) ele-min)	;caso base: ho un solo elemento
 										;restituisco l'elemento
-        ((< (car lista) ele-min) (cerca_min_ric (rest lista) (car lista)))
-        ;se l'elemento in testa è minore
-        ;dell'elemento min attuale, passo ricorsivo
-        ;cerca_minimo (rest list) (first list)
-        (t (cerca_min_ric (cdr lista) ele-min))
+        ((> (car lista) ele-min) (cerca_max_ric (rest lista) (car lista)))
+        ;se l'elemento in testa è massimo
+        ;dell'elemento max attuale, passo ricorsivo
+        ;cerca_massimo (rest list) (first list)
+        (t (cerca_max_ric (cdr lista) ele-min))
     )
 )
 
 ; cerca la posizione dell'elemento nella lista
-(defun cerca_elemento (lista ele)
+(defun cerca_pos_elemento (lista ele)
   (if (null lista) ()
 	(cond ((eql (car lista) ele) 0)
-		  (t(+ 1 (cerca_elemento (cdr lista) ele))))))
+		  (t(+ 1 (cerca_pos_elemento (cdr lista) ele))))))
 
 ; restituisce l'elemento in posizione n della lista
 (defun get_elemento (lista n)
@@ -150,25 +150,54 @@
           (t (list (car lista)))
     )
 )
+
+(defun get_nextPt (points listaAngoli)
+	(get_elemento points
+				(cerca_pos_elemento listaAngoli
+  									(cerca_massimo listaAngoli)
+  				)
+  	)
+)
+
+(defun elimina_ele_listaAngoli (listaAngoli)
+	(elimina_ele (cerca_massimo listaAngoli) listaAngoli)
+)
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;	IMPLEMENTAZIONE DELL'ARGORITMO
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 ; predicati d'appoggio al main
-(defun seleziona_primo_punto (listaPt)
-	(cons
-		(car(ordinax (lista_y_min listaPt)))
-		(seleziona_secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt))) listaPt))
+(defun primo_punto (listaPt)
+	(secondo_punto (elimina_ele (car(ordinax (lista_y_min listaPt)))listaPt)	;passo la lista aggiornata
+				(push_lista (car(ordinax (lista_y_min listaPt))) (list))
+				(rest (lista_angle2d listaPt
+									(car(ordinax (lista_y_min listaPt)))))
 	)
 )
 
-(defun seleziona_secondo_punto (listaPt)
-  (0)
+(defun secondo_punto (listaPt pila listaAngoli)
+  (terzo_punto (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)
+  			(push_lista (get_nextPt listaPt listaAngoli) pila)
+  			(elimina_ele (cerca_massimo listaAngoli) listaAngoli)
+  )
 )
 
+(defun terzo_punto (listaPt pila listaAngoli)
+  (recursive_main (elimina_ele (get_nextPt listaPt listaAngoli) listaPt)
+  			(push_lista (get_nextPt listaPt listaAngoli) pila)
+  			(elimina_ele_listaAngoli listaAngoli)
+  )
+)
+
+(defun recursive_main (listaPt pila listaAngoli)
+	(cons (car pila) (rest pila))
+)
+
+;(defparameter app3 (list (list 5 1) (list 3 3) (list -4 1) (list 1 5) (list -1 1) (list 4 -2) (list -2 -1) (list 2 -2) (list 1 -1)))
 (defun ch (Points)
-	(if (>= 3 (lengh (rimuovi_duplicati Points)))
-		(seleziona_primo_punto (ordinay (rimuovi_duplicati Points)))
+	(if (>= (lengh (rimuovi_duplicati Points)) 3)
+		(primo_punto (ordinay (rimuovi_duplicati Points)))
+		nil
 	)
 )
 
