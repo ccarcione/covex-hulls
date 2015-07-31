@@ -56,3 +56,5 @@ Qualunque codice presentato che non segue queste semplici regole verrà cassato.
 
 
 Link: http://www.geeksforgeeks.org/convex-hull-set-2-graham-scan/
+
+Angolo tra due punti: http://digilander.libero.it/carlopala/vb/angdirez.htm
